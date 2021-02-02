@@ -1,5 +1,6 @@
 package com.seungmoo;
 
+@MyAnnoation("seungmoo")
 public class Book {
     private String a = "a";
     private static String B = "BOOK";
@@ -10,16 +11,19 @@ public class Book {
     public Book() {
     }
 
+    @FieldAnnotation("Sam Moo")
     public Book(String a, String d, String e) {
         this.a = a;
         this.d = d;
         this.e = e;
     }
 
+    @FieldAnnotation("Sam Moo")
     private void f() {
         System.out.println("F");
     }
 
+    @FieldAnnotation("Sam Moo")
     public void g() {
         System.out.println("g");
     }

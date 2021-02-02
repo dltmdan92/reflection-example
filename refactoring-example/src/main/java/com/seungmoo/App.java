@@ -65,5 +65,26 @@ public class App
             System.out.println(Modifier.isPrivate(modifiers));
             System.out.println(Modifier.isStatic(modifiers));
         });
+
+        // 그냥 이렇게 했을 경우에는 Book에 있는 Annotation을 못 불러온다.
+        // BUT) @Retention(RetentionPolicy.RUNTIME) 이 붙어있는 Annotaion은 Runtime 시 메모리에 있기 때문에 접근 가능함.
+        Arrays.stream(Book.class.getAnnotations()).forEach(System.out::println);
+
+        // super class에서 선언된 Annotation도 갖고 올 수 있다. (@Inherited Annotation의 경우)
+        Arrays.stream(MyBook.class.getAnnotations()).forEach(System.out::println);
+
+        // MyBook에 선언된 Annotation만 갖고 온다.
+        Arrays.stream(MyBook.class.getDeclaredAnnotations()).forEach(System.out::println);
+
+        // field에 붙은 Annotation을 가져와 보자.
+        Arrays.stream(MyBook.class.getDeclaredFields()).forEach( f -> {
+            Arrays.stream(f.getAnnotations()).forEach(a -> {
+                if (a instanceof MyAnnoation) {
+                    MyAnnoation myAnnoation = (MyAnnoation) a;
+                    System.out.println(myAnnoation.value());
+                    System.out.println(myAnnoation.nameDefault());
+                }
+            });
+        });
     }
 }
