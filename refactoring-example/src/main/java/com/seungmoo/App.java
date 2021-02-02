@@ -1,7 +1,6 @@
 package com.seungmoo;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.Arrays;
 
 /**
@@ -10,8 +9,14 @@ import java.util.Arrays;
  */
 public class App 
 {
-    public static void main( String[] args ) throws ClassNotFoundException, NoSuchFieldException {
+    public static void main( String[] args ) throws NoSuchFieldException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
 
+        //reflection1();
+
+        reflection2();
+    }
+
+    private static void reflection1() throws ClassNotFoundException, NoSuchFieldException {
         // 기본적으로 Reflection은 Class 라는 객체에서 시작된다.
         // 아래 대표적인 3가지 방법으로 ClassLoading된 객체에 접근할 수 있다.
 
@@ -86,5 +91,47 @@ public class App
                 }
             });
         });
+    }
+
+    private static void reflection2() throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchFieldException {
+        Class<?> bookClass = Class.forName("com.seungmoo.Book2");
+
+        // String을 Parameter로 받는 생성자를 갖고 온다.
+        Constructor<?> constructor = bookClass.getConstructor(String.class);
+        // 생성자를 통해 새로운 객체를 생성한다.
+        Book2 book2 = (Book2) constructor.newInstance("myBook");
+
+        System.out.println(book2);
+
+        Field a = Book2.class.getDeclaredField("A");
+        System.out.println(a.get(null));
+        // A는 static한 필드이므로 참조 객체는 필요없다. 그냥 null 넣는다.
+        a.set(null, "BBBB");
+        System.out.println(a.get(null));
+
+        // B는 인스턴스의 field이므로 참조되는 인스턴스가 존재해야 한다. 그냥 Field를 갖고 올 경우 ERROR 발생!!
+        //Field b = Book2.class.getDeclaredField("B");
+
+        // b는 인스턴스 변수 이므로, 위에서 생성된 book2 인스턴스 객체에서 갖고 오도록 한다.
+        Field b = book2.getClass().getDeclaredField("B");
+        b.setAccessible(true);
+        System.out.println(b.get(book2));
+        b.set(book2, "AAAA");
+        System.out.println(b.get(book2));
+
+        // 그냥 getMethod() 할 경우, private 한 거는 안갖고 온다.
+        Method db = Book2.class.getDeclaredMethod("c");
+        // getDeclaredMethod를 통해 private method를 갖고 왔으나, 조작은 실패한다.
+        // 그 때 setAccessible을 해주면 private 또한 접근이 가능하게 된다.
+        db.setAccessible(true);
+        // db.invoke(book2, "book");  Argument 갯수 실패
+        db.invoke(book2);
+
+        // int parameter 두개를 받는 class
+        // primitive type과 reference type 구분하므로 맞춰서 셋팅 해줄 것.
+        Method sum = Book2.class.getDeclaredMethod("sum", int.class, int.class);
+        int invoke = (int) sum.invoke(book2, 1, 2);
+        System.out.println(invoke);
+
     }
 }
